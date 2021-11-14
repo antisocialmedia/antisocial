@@ -102,6 +102,7 @@ async function wsServer(database, users, config) {
         // when we receive a message
         ws.on("message", async (msg) => {
             try {
+                // parse the message
                 let { message } = JSON.parse(msg);
                 if (!ws.antisocial.authenticated) {
                     if (message.type === "authenticate") {
