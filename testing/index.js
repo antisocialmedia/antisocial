@@ -9,6 +9,7 @@ const { WebSocket } = require("ws");
 let tweetnacl = require("tweetnacl");
 tweetnacl.auth = require("tweetnacl-auth");
 tweetnacl.util = require("tweetnacl-util");
+const secretSession = require("./double-ratchet");
 const { info, misc, error } = require("../server/logger");
 
 // config
@@ -43,7 +44,7 @@ ws.on("message", (msg) => {
     // parse our message
     const { message } = JSON.parse(msg);
     // inform the user of the message
-    info(`A message was received from the server. It is as follows: ${JSON.stringify(message)}`);
+    info(`A message was received from the server. It is as follows: ${JSON.stringify(message).slice(0, 250)}${JSON.stringify(message).length > 250 ? "..." : ""}`);
     // check the message type
     if (message.type === "connected") {
         // if we're connected, log the connection and save the new state
@@ -108,6 +109,7 @@ ws.on("message", (msg) => {
             // inform the user we've generated our handshake keys
             info("Handshake keys have been generated.");
             // send the registration message
+            info("Registering an account...");
             sendMessage({
                 type: "register",
                 contents: {
@@ -130,5 +132,21 @@ ws.on("message", (msg) => {
         state.authenticated = true;
         // save localstorage
         saveLocalStorage();
+        // request our state
+        info("Retrieving state from the server...");
+        sendMessage({
+            type: "retrieve-state"
+        });
+    }
+    else if (message.type === "state") {
+        // inform the user
+        info("The cryptographic state has been acquired from the server.");
+        // save the raw cryptographic state
+        state.rawCryptoState = message.contents;
+    }
+    // if we don't recognize the message type
+    else {
+        // inform the user
+        info("A message was received from the server, but the client can't process it.");
     }
 });

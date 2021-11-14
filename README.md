@@ -6,5 +6,8 @@ A private, end-to-end encrypted social media platform for the masses (licensed u
 ## Client
 The client uses Electron and is available at `client/`.
 
-### Server
+## Server
 The server uses Express and ws and is available at `server/`.
+
+## Testing
+There is a lightweight, small test client (reference implementation) available at `testing/`.

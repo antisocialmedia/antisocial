@@ -157,7 +157,8 @@ async function wsServer(database, users, config) {
                                 name: message.contents.name,
                                 password: hash,
                                 identityKey: message.contents.identityKey,
-                                handshakeKeys: message.contents.handshakeKeys
+                                handshakeKeys: message.contents.handshakeKeys,
+                                friends: []
                             });
                             // save the database
                             database.save();
@@ -190,6 +191,29 @@ async function wsServer(database, users, config) {
                             message: {
                                 type: "error",
                                 contents: "You are not logged in."
+                            }
+                        }));
+                    }
+                }
+                // if we're authenticated
+                else {
+                    // if they want to get their state
+                    if (message.type === "retrieve-state") {
+                        // send them their state
+                        ws.send(JSON.stringify({
+                            message: {
+                                type: "state",
+                                contents: users.findOne({ name: ws.antisocial.user })
+                            }
+                        }));
+                    }
+                    // if we don't recognize their command
+                    else {
+                        // notify them we don't recognize their command
+                        ws.send(JSON.stringify({
+                            message: {
+                                type: "error",
+                                contents: "Command not recognized."
                             }
                         }));
                     }
