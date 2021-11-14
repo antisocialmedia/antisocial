@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/antisocialmedia/antisocial#readme",
   "dependencies": {
+    "argon2": "^0.28.2",
     "body-parser": "^1.19.0",
+    "chalk": "^4.1.2",
     "express": "^4.17.1",
     "lokijs": "^1.5.12",
     "ws": "^8.2.3"

@@ -1,6 +1,8 @@
 # antisocial
 A private, end-to-end encrypted social media platform for the masses (licensed under AGPLv3)
 
+### NOTICE: ANTISOCIAL IS STILL BEING PROTOTYPED. DO NOT RUN AN INSTANCE!
+
 ## Client
 The client uses Electron and is available at `client/`.
 
