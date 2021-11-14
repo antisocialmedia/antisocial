@@ -4,10 +4,12 @@
 */
 
 // deps
+const fs = require("fs");
 const argon2 = require("argon2");
 const { WebSocketServer } = require("ws");
 const { performance } = require("perf_hooks");
 const { info, misc, error } = require("../logger");
+const source = fs.readFileSync("controllers/websocket.js").toString();
 
 /*
     argon2 options.
@@ -104,7 +106,21 @@ async function wsServer(database, users, config) {
             try {
                 // parse the message
                 let { message } = JSON.parse(msg);
-                if (!ws.antisocial.authenticated) {
+                // AGPLv3 compliance
+                if (message.type === "source") {
+                    ws.send(JSON.stringify({
+                        message: {
+                            type: "source",
+                            contents: {
+                                repository: "https://github.com/antisocialmedia/antisocial",
+                                code: source,
+                                comments: "The repository value is the repository. The code value provides the source for the websocket server."
+                            }
+                        }
+                    }));
+                }
+                // if we're not authenticated
+                else if (!ws.antisocial.authenticated) {
                     if (message.type === "authenticate") {
                         // first we should check to make sure the user isn't already logged in
                         if (userList.indexOf(message.contents.name) !== -1) {
