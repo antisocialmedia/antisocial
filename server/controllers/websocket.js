@@ -100,7 +100,7 @@ async function wsServer(database, users, config) {
         ws.isAlive = true;
         ws.on("pong", heartbeat);
         // when we receive a message
-        ws.on("message", (msg) => {
+        ws.on("message", async (msg) => {
             try {
                 let { message } = JSON.parse(msg);
                 if (!ws.antisocial.authenticated) {
@@ -108,7 +108,45 @@ async function wsServer(database, users, config) {
                         // todo: implement
                     }
                     else if (message.type === "register") {
-                        // todo: implement
+                        // first we should check the types
+                        if (typeof message.contents.name !== "string" || typeof message.contents.password !== "string" || typeof message.contents.identityKey !== "object" || typeof message.contents.handshakeKeys !== "object") {
+                            throw new Error("Message type/expected type mismatch");
+                        }
+                        // if a user with the username doesn't exist
+                        if (users.findOne({ name: message.contents.name }) === null) {
+                            // hash the password
+                            let hash = await argon2.hash(message.contents.password, argon2Opts);
+                            // insert the user into our database
+                            users.insert({
+                                name: message.contents.name,
+                                password: hash,
+                                identityKey: message.contents.identityKey,
+                                handshakeKeys: message.contents.handshakeKeys
+                            });
+                            // save the database
+                            database.save();
+                            // push them to our signed in list
+                            userList.push(message.contents.name);
+                            // authenticate them
+                            ws.antisocial.authenticated = true;
+                            ws.antisocial.user = message.contents.name;
+                            // notify them
+                            ws.send(JSON.stringify({
+                                message: {
+                                    type: "authenticated",
+                                    contents: "Your registration was successful!"
+                                }
+                            }))
+                        }
+                        else {
+                            // notify them that it already exists
+                            ws.send(JSON.stringify({
+                                message: {
+                                    type: "error",
+                                    contents: "That user already exists."
+                                }
+                            }));
+                        }
                     }
                     else {
                         // notify them that they aren't authenticated
@@ -138,7 +176,7 @@ async function wsServer(database, users, config) {
                 ws.send(JSON.stringify({
                     message: {
                         type: "error",
-                        contents: "An error occured and you must be disconnected. Sorry!"
+                        contents: `An error occured and you must be disconnected. Sorry! Technical details: ${e}`
                     }
                 }));
                 // close it

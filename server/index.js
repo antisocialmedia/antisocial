@@ -18,9 +18,7 @@ const config = require("./config.json");
 info("Initializing database...");
 
 // initialize the database
-const database = new loki("database.db", {
-    autoload: true
-});
+const database = new loki("database.db");
 
 // load the database
 database.loadDatabase({}, () => {
