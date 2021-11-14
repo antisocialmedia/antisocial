@@ -105,7 +105,43 @@ async function wsServer(database, users, config) {
                 let { message } = JSON.parse(msg);
                 if (!ws.antisocial.authenticated) {
                     if (message.type === "authenticate") {
-                        // todo: implement
+                        // first we should check to make sure the user isn't already logged in
+                        if (userList.indexOf(message.contents.name) !== -1) {
+                            ws.send(JSON.stringify({
+                                message: {
+                                    type: "error",
+                                    contents: "You are already logged in on another device."
+                                }
+                            }));
+                        }
+                        // second we should check that the user exists
+                        else if (users.findOne({ name: message.contents.name }) !== null) {
+                            // let's set a user object
+                            let user = users.findOne({ name: message.contents.name });
+                            // next we should verify the hash present with the password
+                            if (await argon2.verify(user.password, message.contents.password)) {
+                                // authenticate them
+                                ws.antisocial.authenticated = true;
+                                ws.antisocial.user = message.contents.name;
+                                // push them to the user list
+                                userList.push(message.contents.name);
+                                // send them a message
+                                ws.send(JSON.stringify({
+                                    message: {
+                                        type: "authenticated",
+                                        contents: "You were logged in successfully!"
+                                    }
+                                }));
+                            }
+                        }
+                        else {
+                            ws.send(JSON.stringify({
+                                message: {
+                                    type: "error",
+                                    contents: "That user doesn't exist."
+                                }
+                            }));
+                        }
                     }
                     else if (message.type === "register") {
                         // first we should check the types
