@@ -218,6 +218,14 @@ async function wsServer(database, users, config) {
                 // close it
                 ws.close();
             }
+            // on close
+            ws.on("close", () => {
+                info("Connection disconnected on WS.")
+                // remove them from the user list
+                if (ws.antisocial.user !== null) {
+                    userList.splice(userList.indexOf(ws.antisocial.user), 1);
+                }
+            });
         });
     });
 
