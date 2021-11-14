@@ -1,0 +1,2 @@
+# security policy
+hello! thank you for your interest in antisocial and its security. please contact parabirb over discord for info on any vulnerabilities (parabirb#7775, [PGP key](https://keys.openpgp.org/vks/v1/by-fingerprint/07F988C86662F3821CEC1E39BFB779869FEE99D2)).
