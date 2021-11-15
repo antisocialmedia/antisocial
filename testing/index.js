@@ -50,11 +50,7 @@ ws.on("message", (msg) => {
         // if we're connected, log the connection and save the new state
         info("Successful connection established to server.");
         state.connected = true;
-        // authenticate to the server
-        if (localstorage.user !== undefined) {
-            // todo
-        }
-        else {
+        if (localstorage.user === undefined) {
             // set our username and password if it doesn't already exist
             info("Username and password have been generated.");
             localstorage.user = "amongUsASMR";
