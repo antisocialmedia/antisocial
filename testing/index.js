@@ -9,7 +9,6 @@ const { WebSocket } = require("ws");
 let tweetnacl = require("tweetnacl");
 tweetnacl.auth = require("tweetnacl-auth");
 tweetnacl.util = require("tweetnacl-util");
-const secretSession = require("./double-ratchet");
 const { info, misc, error } = require("../server/logger");
 
 // config
